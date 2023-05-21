@@ -8,11 +8,15 @@ using UnityEngine.UI;
 public class ObjectSelectionScript : MonoBehaviour
 {
     public GameObject objectPrefab;
-    public ClickCreateObject XROrigin;
+    public RayCastManager raycastmanager;
+    private ARGameManager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Find the ARGameManager script
+        gameManager = GameObject.Find("XR Origin").GetComponent<ARGameManager>();
+        
         // Get the Button component attached to the TMP button element
         Button button = GetComponent<Button>();
 
@@ -22,6 +26,7 @@ public class ObjectSelectionScript : MonoBehaviour
 
     void selectObject()
     {
-        XROrigin.SetSelectedObject(objectPrefab);
+        raycastmanager.SetSelectedObject(objectPrefab);
+        gameManager.HideMenu();
     }
 }

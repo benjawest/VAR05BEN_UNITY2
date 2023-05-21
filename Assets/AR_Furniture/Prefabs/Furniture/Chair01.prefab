@@ -72,6 +72,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Chair01
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: e6c8b4e65f969a6489ca7070f15ac291,
+        type: 3}
+      propertyPath: m_TagString
+      value: Furniture
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6c8b4e65f969a6489ca7070f15ac291, type: 3}
 --- !u!1 &4515425992098695589 stripped
@@ -108,7 +113,6 @@ MonoBehaviour:
   customMesh: {fileID: 5437465885400482064, guid: f7418a0cb8b5e5b49a885481c679f588,
     type: 3}
   customMaterial: {fileID: 2100000, guid: e6e24a2bd22f4ce4182a24b73f02ae32, type: 2}
-  isVisible: 0
 --- !u!114 &6779274028585648599
 MonoBehaviour:
   m_ObjectHideFlags: 0
