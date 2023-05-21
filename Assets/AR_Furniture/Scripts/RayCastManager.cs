@@ -3,9 +3,6 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using System.Collections.Generic;
 
-
-
-[RequireComponent(typeof(ARAnchorManager))]
 [RequireComponent(typeof(ARRaycastManager))]
 public class RayCastManager : MonoBehaviour
 {
@@ -15,7 +12,6 @@ public class RayCastManager : MonoBehaviour
 
     // references to the ARRaycastManager and ARAnchorManager
     ARRaycastManager raycastManager;
-    ARAnchorManager anchorManager;
     ARGameManager gameManager;
 
     // Prefab to instantiate on touch - Anchor prefab
@@ -42,7 +38,6 @@ public class RayCastManager : MonoBehaviour
     private void Start()
     {
         raycastManager = GetComponent<ARRaycastManager>();
-        anchorManager = GetComponent<ARAnchorManager>();
         gameManager = GetComponent<ARGameManager>();
     }
 
@@ -95,12 +90,14 @@ public class RayCastManager : MonoBehaviour
     private void CheckIfPlane(Ray ray)
     {
         // Perform raycast using ARRaycastManager, only return hits with planes
-        if (raycastManager.Raycast(ray, hits, TrackableType.AllTypes))
+        if (raycastManager.Raycast(ray, hits, TrackableType.Planes))
         {
             //ARAnchor anchor = null;
 
-            // Get the hit  from the first hit in the hits array
+            // Get the hit from the first hit in the hits array
             var hit = hits[0];
+
+
 
             if (hit.trackable is ARPlane plane)
             {
@@ -120,7 +117,7 @@ public class RayCastManager : MonoBehaviour
                         gameManager.SetSelectedObject(newPiece);
                     }
 
-                    Debug.DrawLine(ray.origin, hit.pose.position, Color.red, 1);
+                    return;
                 }
                 else
                 {
@@ -134,7 +131,7 @@ public class RayCastManager : MonoBehaviour
     private bool CheckIfSelectable(Ray ray)
     {
         // Check if the user has clicked on a selectable object
-        RaycastHit hit;
+        
         if (Physics.Raycast(ray, out RaycastHit hitInfo))
         {
             // Check if the hit object has the "Furniture" tag
