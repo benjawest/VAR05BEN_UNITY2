@@ -18,8 +18,8 @@ public class ARGameManager : MonoBehaviour
 
     // List to hold all the furniture we create
     List<GameObject> Furniture = new List<GameObject>();
-
-    RayCastManager rayCastManager;
+    private ARPlaneManager planeManager;
+    private RayCastManager rayCastManager;
     
     // Start is called before the first frame update
     void Awake()
@@ -29,6 +29,12 @@ public class ARGameManager : MonoBehaviour
         {
             Debug.LogError("RayCastManager is null");
         }
+        planeManager = GetComponent<ARPlaneManager>();
+        if (planeManager == null)
+        {
+            Debug.LogError("ARPlaneManager is null");
+        }
+
 
         // if menuParent is not null, check if it is active. Set isMenuOpen to true if it is
         if(menuParent != null)
@@ -162,5 +168,16 @@ public class ARGameManager : MonoBehaviour
         }
     }
 
+    public void ToggleTrackableVisibilty()
+    {
+        planeManager.enabled = !planeManager.enabled;
+
+        // toggle the active state of all the planes
+        foreach(var plane in planeManager.trackables)
+        {
+            plane.gameObject.SetActive(planeManager.enabled);
+        }
+
+    }
     
 }
