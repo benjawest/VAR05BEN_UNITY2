@@ -1812,7 +1812,7 @@ GameObject:
   - component: {fileID: -9003151142491087927}
   m_Layer: 0
   m_Name: Squirrel
-  m_TagString: Untagged
+  m_TagString: Furniture
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
