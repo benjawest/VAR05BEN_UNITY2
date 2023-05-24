@@ -112,8 +112,8 @@ public class ARGameManager : MonoBehaviour
     {
           if(selectedPiece != null)
         {
-            Destroy(selectedPiece);
             ClearSelectedObject();
+            Destroy(selectedPiece);
         }
     }
 

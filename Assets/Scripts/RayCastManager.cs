@@ -23,6 +23,7 @@ public class RayCastManager : MonoBehaviour
     Vector2 pos;
 
     public bool isMenuOpen = false;
+    private bool isTouchBegan = false; // tracks if the touch has already been registered
 
     private void Start()
     {
@@ -34,7 +35,38 @@ public class RayCastManager : MonoBehaviour
         // While there is no selected object and the menu is not open, perform raycast
         if (gameManager.pieceSelected == false && !isMenuOpen)
         {
+            #if UNITY_EDITOR
             CheckForInput();
+            #else
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0); // Retrieve the first touch
+
+                if (touch.phase == TouchPhase.Began)
+                {
+                    if (!isTouchBegan)
+                    {
+                        // Code to run only when a touch has begun for the first time
+                        CheckForInput();
+                        // Example code:
+                        Debug.Log("Touch has begun");
+
+                        // Trigger your event or perform custom logic here
+                        // ...
+
+                        isTouchBegan = true;
+                    }
+                }
+                else if (touch.phase == TouchPhase.Ended)
+                {
+                    if (isTouchBegan)
+                    {
+                        // Reset the touch state when the touch ends
+                        isTouchBegan = false;
+                    }
+                }
+            }
+            #endif
         }
         else
         {
@@ -45,17 +77,17 @@ public class RayCastManager : MonoBehaviour
 
     private void CheckForInput()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (Input.GetMouseButtonDown(0) == false)
                 return;
 
             pos = Input.mousePosition;
-         #else
+#else
             if (Input.touchCount == 0)
                 return;
 
             pos = Input.GetTouch(0).position;
-        #endif
+#endif
 
         Debug.Log($"Clicked: {pos}");
 
