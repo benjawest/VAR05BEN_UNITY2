@@ -22,12 +22,17 @@ public class RayCastManager : MonoBehaviour
     // Stores the position of the click/touch
     Vector2 pos;
 
-    public bool isMenuOpen = false;
+    public bool isMenuOpen = true;
     private bool isTouchBegan = false; // tracks if the touch has already been registered
 
     private void Start()
     {
         gameManager = GetComponent<ARGameManager>();
+
+        if (gameManager != null)
+        {
+            isMenuOpen = gameManager.menuParent.activeSelf;
+        }
     }
 
     private void Update()

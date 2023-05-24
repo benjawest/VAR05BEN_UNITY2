@@ -13,7 +13,6 @@ public class ARGameManager : MonoBehaviour
     public GameObject menuButton;
     public GameObject menuParent;
     public GameObject debugManager;
-    private GameObject trackables;
 
     public bool isMenuOpen = false;
 
@@ -23,7 +22,7 @@ public class ARGameManager : MonoBehaviour
     RayCastManager rayCastManager;
     
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rayCastManager = GetComponent<RayCastManager>();
         if (rayCastManager == null)
@@ -112,8 +111,9 @@ public class ARGameManager : MonoBehaviour
     {
           if(selectedPiece != null)
         {
+            var toBeDeleted = selectedPiece;
             ClearSelectedObject();
-            Destroy(selectedPiece);
+            Destroy(toBeDeleted);
         }
     }
 
