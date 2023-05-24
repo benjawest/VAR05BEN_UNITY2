@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3933460719968095786}
   - component: {fileID: 8992254806513048078}
   - component: {fileID: 5640071601196448884}
+  - component: {fileID: -3335433490663048437}
   m_Layer: 0
   m_Name: catBlack
   m_TagString: Furniture
@@ -224,3 +225,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   customMesh: {fileID: 0}
   customMaterial: {fileID: 0}
+--- !u!95 &-3335433490663048437
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1540631052743206816}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: be0b130f077976f4bae38e76403b1ddb, type: 3}
+  m_Controller: {fileID: 9100000, guid: d32b4616eb5c19d429c37003938fc696, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
