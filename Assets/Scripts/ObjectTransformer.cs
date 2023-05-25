@@ -9,11 +9,14 @@ public class ObjectTransformer : MonoBehaviour
     public Button moveXNegativeButton;
     public Button moveZPositiveButton;
     public Button moveZNegativeButton;
+    public Button scalePositiveButton;
+    public Button scaleNegativeButton;
 
    public ARGameManager gameManager;
 
-    public float rotationAmount = 90f;
-    public float moveAmount = 10f;
+    public float rotationAmount = 45f;
+    public float moveAmount = 0.1f;
+    public float scaleAmount = 0.1f;
 
     void Start()
     {
@@ -24,6 +27,9 @@ public class ObjectTransformer : MonoBehaviour
         moveXNegativeButton.onClick.AddListener(MoveXNegative);
         moveZPositiveButton.onClick.AddListener(MoveZPositive);
         moveZNegativeButton.onClick.AddListener(MoveZNegative);
+        scalePositiveButton.onClick.AddListener(ScalePositive);
+        scaleNegativeButton.onClick.AddListener(ScaleNegative);
+        
 
         
     }
@@ -83,6 +89,26 @@ public class ObjectTransformer : MonoBehaviour
             // Move the object in the negative Z direction
             Vector3 movement = new Vector3(0f, 0f, -moveAmount);
             gameManager.selectedPiece.transform.position += movement;
+        }
+    }
+
+    void ScalePositive()
+    {
+        if (gameManager.selectedPiece != null)
+        {
+            // Scale the object by the positive scale amount
+            Vector3 scale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+            gameManager.selectedPiece.transform.localScale += scale;
+        }
+    }
+
+    void ScaleNegative()
+    {
+        if (gameManager.selectedPiece != null)
+        {
+            // Scale the object by the negative scale amount
+            Vector3 scale = new Vector3(-scaleAmount, -scaleAmount, -scaleAmount);
+            gameManager.selectedPiece.transform.localScale += scale;
         }
     }
 }

@@ -3,6 +3,8 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
+
 
 [RequireComponent(typeof(ARRaycastManager))]
 [RequireComponent(typeof(ARGameManager))]
@@ -62,7 +64,6 @@ public class RayCastManager : MonoBehaviour
                 {
                     // Code to run only when a touch has begun for the first time
                     CheckForInput();
-                    // Example code:
                     Debug.Log("Touch has begun");
                     isTouchBegan = true;
                 }
@@ -93,7 +94,8 @@ public class RayCastManager : MonoBehaviour
             pos = Input.GetTouch(0).position;
 #endif  
         // Check if the pointer is over any UI elements
-        if (IsPointerOverUI())
+        bool isOverUI = pos.IsPointOverUIObject();
+        if (isOverUI)
         {
             // Debug line
             Debug.Log("Pointer is over UI element");
@@ -209,21 +211,6 @@ public class RayCastManager : MonoBehaviour
                 return true;
             }
             
-        }
-        return false;
-    }
-
-
-    bool IsPointerOverUI()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            return EventSystem.current.IsPointerOverGameObject();
-        }
-        else if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-            return EventSystem.current.IsPointerOverGameObject(touch.fingerId);
         }
         return false;
     }
