@@ -49,10 +49,7 @@ public class ARGameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(pieceSelected)
-        {
-            selectedPiece.GetComponent<BoxColliderVisualizer>().EnableVisibility(true);
-        }
+      
     }
 
     public void SetSelectedObject(GameObject newSelection)
@@ -74,6 +71,8 @@ public class ARGameManager : MonoBehaviour
         }
 
         isMenuOpen = true;
+
+
     }
 
     public void ConfirmSelectedObject()
@@ -148,11 +147,7 @@ public class ARGameManager : MonoBehaviour
             Destroy(obj);
         }
         Furniture.Clear();
-
-       
     }
-
-
 
     public void AddObject(GameObject obj)
     {

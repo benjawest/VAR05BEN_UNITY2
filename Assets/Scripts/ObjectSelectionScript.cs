@@ -27,7 +27,7 @@ public class ObjectSelectionScript : MonoBehaviour
 
     void selectObject()
     {
-        raycastmanager.SetSelectedObject(objectPrefab);
+        raycastmanager.LoadPrefabToSpawn(objectPrefab);
         gameManager.HideMenu();
     }
 }

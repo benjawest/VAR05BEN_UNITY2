@@ -2,16 +2,18 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(ARRaycastManager))]
+[RequireComponent(typeof(ARGameManager))]
+[RequireComponent(typeof(ARPlaneManager))]
 public class RayCastManager : MonoBehaviour
 {
 
     public Camera cam;
-    
-
-    // references to the gameManager
     ARGameManager gameManager;
+    ARRaycastManager raycastManager;
+    ARPlaneManager planeManager;
 
     // Prefab to instantiate on touch
     public GameObject objPrefab;
@@ -22,13 +24,21 @@ public class RayCastManager : MonoBehaviour
     // Stores the position of the click/touch
     Vector2 pos;
 
+    // List to hold ARRaycast hits
+    static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+
     public bool isMenuOpen = true;
     private bool isTouchBegan = false; // tracks if the touch has already been registered
 
-    private void Start()
+    private void Awake()
     {
         gameManager = GetComponent<ARGameManager>();
+        raycastManager = GetComponent<ARRaycastManager>();
+        planeManager = GetComponent<ARPlaneManager>();
+    }
 
+    private void Start()
+    {
         if (gameManager != null)
         {
             isMenuOpen = gameManager.menuParent.activeSelf;
@@ -37,47 +47,36 @@ public class RayCastManager : MonoBehaviour
 
     private void Update()
     {
-        // While there is no selected object and the menu is not open, perform raycast
-        if (gameManager.pieceSelected == false && !isMenuOpen)
+       
+        // Check if the user has touched the screen
+        #if UNITY_EDITOR
+        CheckForInput();
+        #else
+        if (Input.touchCount > 0)
         {
-            #if UNITY_EDITOR
-            CheckForInput();
-            #else
-            if (Input.touchCount > 0)
+            Touch touch = Input.GetTouch(0); // Retrieve the first touch
+
+            if (touch.phase == TouchPhase.Began)
             {
-                Touch touch = Input.GetTouch(0); // Retrieve the first touch
-
-                if (touch.phase == TouchPhase.Began)
+                if (!isTouchBegan)
                 {
-                    if (!isTouchBegan)
-                    {
-                        // Code to run only when a touch has begun for the first time
-                        CheckForInput();
-                        // Example code:
-                        Debug.Log("Touch has begun");
-
-                        // Trigger your event or perform custom logic here
-                        // ...
-
-                        isTouchBegan = true;
-                    }
-                }
-                else if (touch.phase == TouchPhase.Ended)
-                {
-                    if (isTouchBegan)
-                    {
-                        // Reset the touch state when the touch ends
-                        isTouchBegan = false;
-                    }
+                    // Code to run only when a touch has begun for the first time
+                    CheckForInput();
+                    // Example code:
+                    Debug.Log("Touch has begun");
+                    isTouchBegan = true;
                 }
             }
-            #endif
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                if (isTouchBegan)
+                {
+                    // Reset the touch state when the touch ends
+                    isTouchBegan = false;
+                }
+            }
         }
-        else
-        {
-            return;
-        }
-
+        #endif
     }
 
     private void CheckForInput()
@@ -92,14 +91,39 @@ public class RayCastManager : MonoBehaviour
                 return;
 
             pos = Input.GetTouch(0).position;
-#endif
+#endif  
+        // Check if the pointer is over any UI elements
+        if (IsPointerOverUI())
+        {
+            // Debug line
+            Debug.Log("Pointer is over UI element");
+            // UI element is being interacted with, so block further actions
+            return;
+        }
 
         Debug.Log($"Clicked: {pos}");
-
         Ray ray = cam.ScreenPointToRay(pos);
+        Pose hitPose; // varaible to store hit position and rotation
 
+        // If a piece is selected, check if the user has clicked on a plane to move it to
+        if (gameManager.pieceSelected)
+        {
+            Debug.Log("Piece Selected, Checking Input");
+            // Check if the user has clicked on a selectable object, switch to that object if so
+            if (CheckIfSelectable(ray))
+            {
+                Debug.Log("Selectable object hit");
+                return;
+            }
+            // Check if the user has clicked on a plane
+            else if(isARPlane(ray, out hitPose))
+            {
+                Debug.Log("Plane Hit, Moving Piece");
+                gameManager.selectedPiece.transform.position = hitPose.position;
+            }
+        }
         // If the ray is selectable, otherwise check for plane to spawn on
-        if (CheckIfSelectable(ray))
+        else if (CheckIfSelectable(ray))
         {
             Debug.Log("Selectable object hit");
             return;
@@ -107,47 +131,64 @@ public class RayCastManager : MonoBehaviour
         else
         {
             Debug.Log("No Selectable Obj, Checking for Plane");
-            CheckIfPlane(ray);
+            SpawnOnPlane(ray);
         }
         
     }
 
-    private void CheckIfPlane(Ray ray)
+    // Spawns the selected object on the plane, if possible
+    private void SpawnOnPlane(Ray ray)
     {
-        // Perform raycast using physics raycast
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+        Pose hitPose;
+        if (isARPlane(ray, out hitPose))
         {
-        Debug.Log("Raycast hit something");       
-            
-                // Check if the hitInfo is a planar surface rotated facing upwards
-                if (hitInfo.normal == Vector3.up)
+            Debug.Log("Spawning on Plane");
+
+            GameObject newPiece = Instantiate(objPrefab, hitPose.position, objPrefab.transform.rotation);
+
+            // Hide the menu if it's open
+            if (gameManager.isMenuOpen == true)
+            {
+                gameManager.HideMenu();
+            }
+
+            // if gameManager is not null, set the selected object
+            if (gameManager != null)
+            {
+                gameManager.SetSelectedObject(newPiece);
+            }
+        }
+    }
+
+    // Checks if the raycast hit an ARPlane, returns true if it did, and the hitInfo
+    private bool isARPlane(Ray ray, out Pose hitInfo)
+    {
+        hitInfo = new Pose();
+        
+        // Check if the user has clicked on a plane
+        if (raycastManager.Raycast(ray, hits, TrackableType.PlaneWithinPolygon))
+        {
+            // Raycast hits are sorted by distance, so the first one will be the closest hit.
+            hitInfo = hits[0].pose;
+
+            if (hitInfo != null)
+            {
+                // Get the plane that was hit
+                ARPlane hitPlane = planeManager.GetPlane(hits[0].trackableId);
+                if (hitPlane.normal == Vector3.up)
                 {
-                    // print to debug, click hit was planar
-                    Debug.Log("Spawning");
-
-                    GameObject newPiece = Instantiate(objPrefab, hitInfo.point, objPrefab.transform.rotation);
-
-                    // Hide the menu if it's open
-                    if (gameManager.isMenuOpen == true)
-                    {
-                        gameManager.HideMenu();
-                    }
-
-                    // if gameManager is not null, set the selected object
-                    if (gameManager != null)
-                    {
-                        gameManager.SetSelectedObject(newPiece);
-                    }
-
-                    return;
+                    Debug.Log("Raycast hit upwards facing plane: " + hitPlane);
+                    return true;
                 }
                 else
                 {
-                    return;
+                    Debug.Log("Raycast hit non-upwards facing plane: " + hitPlane);
+                    return false;
                 }
 
-            
+            }
         }
+        return false;
     }
 
     private bool CheckIfSelectable(Ray ray)
@@ -156,15 +197,15 @@ public class RayCastManager : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hitInfo))
         {
-            // Check if the hit object has the "Furniture" tag
-            if (hitInfo.collider.CompareTag("Furniture"))
+            // Check if the hit object has the "Spawned" tag
+            if (hitInfo.collider.CompareTag("Spawned"))
             {
-                // The user has hit a GameObject with the "Furniture" tag
-                //Debug.Log("Hit a Furniture object!");
-                GameObject furnitureObject = hitInfo.collider.gameObject;
+                // The user has hit a GameObject with the "Spawned" tag
+                GameObject objectToSelect = hitInfo.collider.gameObject;
 
                 // Select the object
-                gameManager.SetSelectedObject(furnitureObject);
+                Debug.Log("Selecting New Object");
+                gameManager.SetSelectedObject(objectToSelect);
                 return true;
             }
             
@@ -173,10 +214,23 @@ public class RayCastManager : MonoBehaviour
     }
 
 
-    public void SetSelectedObject(GameObject selectedObject)
+    bool IsPointerOverUI()
     {
-        // Set the selected object prefab to the one passed in
-        objPrefab = selectedObject;
+        if (Input.GetMouseButtonDown(0))
+        {
+            return EventSystem.current.IsPointerOverGameObject();
+        }
+        else if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            return EventSystem.current.IsPointerOverGameObject(touch.fingerId);
+        }
+        return false;
     }
 
+
+    public void LoadPrefabToSpawn(GameObject obj)
+    {
+        objPrefab = obj;
+    }
 }

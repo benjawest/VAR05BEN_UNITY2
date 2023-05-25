@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: -4045824552757797144}
   m_Layer: 0
   m_Name: catWhite
-  m_TagString: Furniture
+  m_TagString: Spawned
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
